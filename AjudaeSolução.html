@@ -248,7 +248,80 @@
 
     <script>
         // Global variables
-        let problems = JSON.parse(localStorage.getItem('accountingProblems')) || [];
+        let problems = JSON.parse(localStorage.getItem('accountingProblems')) || [
+            {
+                id: '1',
+                module: 'folha-pagamento',
+                title: 'Estrutura do XML em desconformidade com XSD - elemento ideEstabLot',
+                problem: 'A estrutura do arquivo XML está em desconformidade com o esquema XSD. The element \'ideEstabLot\' in namespace \'http://www.esocial.gov.br/schema/evt/evtDeslig/v_S_01_03_00\' has invalid child element \'infoAgNocivo\' in namespace \'http://www.esocial.gov.br/schema/evt/evtDeslig/v_S_01_03_00\'. List of possible elements expected: \'detVerbas\' in namespace.',
+                solution: '📌 O que aconteceu:\n\nO evento S-2299 (Desligamento) exige obrigatoriamente o bloco <detVerbas>, que representa o holerite da rescisão (com salários, férias, 13º proporcional, multa FGTS, etc.).\n\nComo o recibo de rescisão não foi gerado, o XML foi montado sem esse bloco obrigatório, resultando no erro de estrutura. Sempre que um desligamento for gerado, é essencial emitir o recibo de rescisão, mesmo que haja outros erros a tratar. Caso contrário, o eSocial retornará erro de estrutura.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '2',
+                module: 'folha-pagamento',
+                title: 'Categoria do trabalhador incompatível com lotação e classificação tributária',
+                problem: 'Categoria do trabalhador \'101\' incompatível com a lotação do tipo \'24\' e classificação tributária do empregador \'21\'.\n\nAção Sugerida: O valor informado no campo deverá ser compatível com a lotação e classificação tributária do empregador informada no evento de "Informações Cadastrais do Empregador", conforme Tabela 11 (Compatibilidade entre Categoria de Trabalhadores, Classificação Tributária e Tipos de Lotação).',
+                solution: '📌 O que aconteceu:\n\nHouve divergência entre as informações do sistema e as registradas no eSocial, podendo ser:\n\n1. Categoria do trabalhador incorreta: A categoria cadastrada no sistema não é compatível com a exigida pelo eSocial.\n\n2. Lotação não cadastrada no eSocial: A lotação informada não foi cadastrada previamente no portal do eSocial com o código correto da empresa.\n\n⚠️ Essa informação não é enviada automaticamente pelo sistema, sendo necessário cadastrar manualmente no eSocial.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '3',
+                module: 'folha-pagamento',
+                title: 'Rubrica não existe no cadastro do empregador',
+                problem: 'Rubrica de código \'0084\' e identificador de tabela \'000084\' não existe no cadastro do empregador para o período \'2025-07\'.\n\nAções Sugeridas:\n- Verifique se a rubrica está cadastrada na tabela de rubricas;\n- Confira o preenchimento das informações da rubrica;\n- Para rubricas da Tabela de Rubricas Padrão, o campo ideTabRubr deve ter valor igual a 1.',
+                solution: '📌 O que aconteceu:\n\nA rubrica informada não existe no cadastro do eSocial. É necessário abrir o evento dessa rubrica no sistema, criar o registro e transmiti-lo ao eSocial.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '4',
+                module: 'folha-pagamento',
+                title: 'Empregador Web - Seguro Desemprego - Quantidade de registros incorreta',
+                problem: 'EMPREGADOR WEB -- SEGURO DESEMPREGO\n\n"A quantidade de registros informada no arquivo difere da quantidade real."',
+                solution: '📌 O que aconteceu:\n\nO Edson tentou importar o arquivo no sistema do Ministério do Trabalho e Emprego, mas o erro apareceu. Ao validar no Validador Empregador Web, não foram apontados problemas, porém ao analisar o arquivo percebi que ele estava sem as informações do empregado.\n\nAcessei remotamente e, antes de gerar o arquivo do seguro, gerei o relatório do requerimento para confirmar se havia dados. Depois, selecionei o funcionário e gerei o arquivo novamente.\n\nO arquivo foi gerado corretamente e o envio funcionou. Orientei que, para outros casos semelhantes, seja sempre feito o relatório do requerimento antes da geração do arquivo.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '5',
+                module: 'folha-pagamento',
+                title: 'Evento em duplicidade no eSocial - Código 106',
+                problem: 'Código: 106\n\nDescrição: Foi localizado no sistema um evento em duplicidade com o evento a ser enviado, mesmo Tipo de Inscrição, Número de Inscrição, CPF, Período de Apuração.',
+                solution: '📌 O que aconteceu:\n\nEste erro ocorre quando já existe, no eSocial, um evento idêntico ao que está sendo enviado - mesmo tipo de evento, para o mesmo trabalhador e no mesmo período.\n\nNo eSocial, cada tipo de demonstrativo (rescisão, 13º salário, férias, adiantamento de salário e folha normal) é classificado de acordo com sua natureza.\n\nNo caso das Remunerações, todos são enviados como evento S-1200.\n\n💡 Exemplo prático:\n\nImagine um funcionário que saiu de férias no meio do mês. Ele terá:\n- Férias (período de afastamento)\n- Saldo de salário (dias trabalhados antes das férias)\n\nAmbos são considerados remunerações e, portanto, identificados como S-1200.\n\nSe o usuário gerar apenas as férias e enviá-las ao eSocial, o sistema já registrará um S-1200 para aquele período.\n\nDepois, ao tentar enviar o saldo de salário separadamente, o eSocial acusará duplicidade, pois já existe um S-1200 registrado para aquele mesmo mês.\n\n✅ Como resolver:\n\n- Exclua o evento S-1200 que já está no eSocial.\n- Gere os dois demonstrativos juntos (férias + saldo de salário) e envie em um único envio.\n- Assim, o eSocial reconhecerá que eles pertencem ao mesmo período e aceitará normalmente.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '6',
+                module: 'folha-pagamento',
+                title: 'Evento de remuneração não localizado - Código 724',
+                problem: 'Código: 724\n\nDescrição: Não foi localizado um evento de remuneração do trabalhador para o período e com o mesmo demonstrativo de pagamento.\n\nAção Sugerida: Deve ser um valor atribuído pela fonte pagadora em S-1200, S-1202 ou S-1207 no campo Identificador de Recibo de Pagamento, obedecendo a relação:\n- Tipo de Pagamento = [1] → evento S-1200\n- Tipo de Pagamento = [4] → evento S-1202\n- Tipo de Pagamento = [5] → evento S-1207',
+                solution: '📌 O que aconteceu:\n\nEste erro ocorre quando o usuário tenta enviar um pagamento sem que a respectiva remuneração tenha sido enviada e aceita pelo eSocial.\n\nO caso mais comum é com recibos de férias:\n\n1. O usuário envia o evento de férias (S-1200) mas não envia o saldo de salário.\n\n2. Na hora de transmitir os pagamentos, o pagamento das férias é aceito, mas o do saldo apresenta o erro 724, pois o eSocial não encontrou o demonstrativo de remuneração correspondente.\n\n✅ Como resolver:\n\n1. Excluir do eSocial o evento de férias já enviado.\n\n2. Gerar e enviar juntos:\n   - O evento de férias\n   - O saldo de salário (quando houver)\n\n3. Caso haja algum erro ao subir esses eventos, corrija antes de tentar enviar os pagamentos.\n\n4. Quando ambos os eventos forem aceitos pelo eSocial, envie todos os pagamentos juntos, evitando erro de duplicidade.\n\n5. Se algum pagamento já tiver sido enviado separadamente, exclua e reenvie junto com os demais.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '7',
+                module: 'folha-pagamento',
+                title: 'Somatório dos Proventos menor que Descontos',
+                problem: '"O somatório dos Proventos deve ser maior ou igual ao somatório dos Descontos".',
+                solution: '📌 O que aconteceu:\n\nEste erro ocorre quando, no demonstrativo enviado ao eSocial, o total dos proventos (valores a receber) é menor que o total dos descontos, o que não é permitido.\n\nAs causas mais comuns são:\n\n1. Valor incorreto ou desatualizado no recibo de férias\n   - O cálculo pode estar errado ou incompleto.\n   - Solução: Recalcular ou relançar as férias de forma correta.\n\n2. Diferença entre as rubricas do sistema e as do eSocial\n   - As rubricas (códigos de eventos de folha) não estão compatíveis com o cadastro do eSocial.\n   - Solução: Ajustar as rubricas para que sejam idênticas às cadastradas no eSocial.\n\n3. Tipos de recibo configurados incorretamente\n   - Um tipo de recibo incorreto pode impactar no cálculo da folha.\n   - Solução: Revisar a configuração dos tipos de recibo no sistema.\n\n4. Rubricas iguais entre sistema e eSocial, mas divergentes dentro do próprio evento\n   - O evento pode ter sido configurado com tributações e incidências diferentes das rubricas criadas.\n   - Solução: Conferir os valores e corrigir.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '8',
+                module: 'folha-pagamento',
+                title: 'Informação cadastral do empregador não encontrada',
+                problem: '"É necessário existir informação cadastral do empregador para o período. Ação Sugerida - Verificar se já foi enviado um evento de cadastramento do empregador."',
+                solution: '📌 A uninfe está como Homologação, mude para Produção.',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }
+        ];
         let currentFilter = 'all';
         let currentSearch = '';
         let editingId = null;
@@ -411,57 +484,49 @@
             renderProblems();
         }
 
-        // Render problems
+        // Rendering
         function renderProblems() {
             const container = document.getElementById('problemsList');
             const emptyState = document.getElementById('emptyState');
             
-            let filteredProblems = problems;
-            
-            // Apply module filter
-            if (currentFilter !== 'all') {
-                filteredProblems = filteredProblems.filter(p => p.module === currentFilter);
-            }
-            
-            // Apply search filter
-            if (currentSearch) {
-                filteredProblems = filteredProblems.filter(p => 
-                    p.title.toLowerCase().includes(currentSearch) ||
-                    p.problem.toLowerCase().includes(currentSearch) ||
-                    p.solution.toLowerCase().includes(currentSearch)
-                );
-            }
+            const filteredProblems = problems.filter(problem => {
+                const matchesFilter = currentFilter === 'all' || problem.module === currentFilter;
+                const matchesSearch = currentSearch === '' || 
+                    problem.title.toLowerCase().includes(currentSearch) ||
+                    problem.problem.toLowerCase().includes(currentSearch) ||
+                    problem.solution.toLowerCase().includes(currentSearch);
+                
+                return matchesFilter && matchesSearch;
+            });
             
             if (filteredProblems.length === 0) {
-                container.innerHTML = '';
+                container.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 return;
             }
             
+            container.classList.remove('hidden');
             emptyState.classList.add('hidden');
             
             container.innerHTML = filteredProblems.map(problem => `
-                <div class="bg-white/80 dark:bg-gray-800/80 glass-effect rounded-xl shadow-lg border border-primary-200 dark:border-gray-700 overflow-hidden fade-in">
+                <div class="problem-card bg-white/80 dark:bg-gray-800/80 glass-effect rounded-xl shadow-lg border border-primary-200 dark:border-gray-700 overflow-hidden fade-in">
                     <div class="p-6">
                         <div class="flex items-start justify-between mb-4">
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-3 mb-2">
-                                    <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium">
-                                        ${moduleNames[problem.module]}
-                                    </span>
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                                        ${new Date(problem.createdAt).toLocaleDateString('pt-BR')}
-                                    </span>
-                                </div>
-                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">${problem.title}</h3>
+                            <div class="flex items-center space-x-3">
+                                <span class="module-badge bg-primary-100 dark:bg-gray-700 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-sm font-medium">
+                                    ${moduleNames[problem.module]}
+                                </span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">
+                                    ${formatDate(problem.updatedAt)}
+                                </span>
                             </div>
                             <div class="flex space-x-2">
-                                <button onclick="openModal('${problem.id}')" class="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900 rounded-lg transition-colors">
+                                <button onclick="openModal('${problem.id}')" class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </button>
-                                <button onclick="deleteProblem('${problem.id}')" class="p-2 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg transition-colors">
+                                <button onclick="deleteProblem('${problem.id}')" class="text-gray-400 hover:text-red-600 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                     </svg>
@@ -469,52 +534,69 @@
                             </div>
                         </div>
                         
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">${problem.title}</h3>
+                        
                         <div class="space-y-4">
                             <div>
-                                <h4 class="font-medium text-gray-800 dark:text-white mb-2 flex items-center">
-                                    <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                     </svg>
                                     Problema
                                 </h4>
-                                <p class="text-gray-600 dark:text-gray-300 bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border-l-4 border-red-500">${problem.problem}</p>
+                                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                                    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">${problem.problem}</p>
+                                </div>
                             </div>
                             
                             <div>
-                                <h4 class="font-medium text-gray-800 dark:text-white mb-2 flex items-center">
-                                    <svg class="w-5 h-5 text-primary-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     Solução
                                 </h4>
-                                <p class="text-gray-600 dark:text-gray-300 bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg border-l-4 border-primary-500">${problem.solution}</p>
-                            </div>
-                            
-                            ${problem.image ? `
-                                <div>
-                                    <h4 class="font-medium text-gray-800 dark:text-white mb-2 flex items-center">
-                                        <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                        Imagem
-                                    </h4>
-                                    <img src="${problem.image}" alt="Imagem do problema" class="max-w-full h-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-600">
+                                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                                    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">${problem.solution}</p>
                                 </div>
-                            ` : ''}
+                            </div>
                         </div>
+                        
+                        ${problem.image ? `
+                            <div class="mt-4">
+                                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Imagem</h4>
+                                <img src="${problem.image}" alt="Imagem do problema" class="rounded-lg max-w-full h-auto border border-gray-200 dark:border-gray-600">
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `).join('');
         }
 
-        // Delete problem
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         function deleteProblem(id) {
             if (confirm('Tem certeza que deseja excluir este problema?')) {
-                problems = problems.filter(p => p.id !== id);
+                problems = problems.filter(problem => problem.id !== id);
                 localStorage.setItem('accountingProblems', JSON.stringify(problems));
                 renderProblems();
             }
         }
+
+        // Make functions globally available
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.deleteProblem = deleteProblem;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98af60a6d5430101',t:'MTc1OTg2MDg2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
